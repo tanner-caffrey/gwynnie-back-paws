@@ -1,6 +1,7 @@
 package photoutil
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -33,17 +34,29 @@ func UpdatePhotosInteractive(conf PhotoUtilInteractiveConfig) error {
 		return fmt.Errorf("failed to get photos from directory: %w", err)
 	}
 
+	// Create a scanner for reading user input
+	scanner := bufio.NewScanner(os.Stdin)
+
 	// Ask for a description for each photo and update the photo list
 	for i, photo := range photos {
+		// exists := false
+		// for _, p := range photoList.Photos {
+		// 	if p.Filename == photo.Filename {
+		// 		exists = true
+		// 		break
+		// 	}
+		// }
+		// if exists {
+		// 	continue
+		// }
 		fmt.Printf("Enter description for photo %d (%s): ", i+1, photo.Title)
-		var description string
-		_, err := fmt.Scanln(&description)
-		if err != nil {
-			return fmt.Errorf("failed to read description: %w", err)
-		}
 
-		// Update the photo with the provided description
-		photo.Description = description
+		// Read the entire line of input, including spaces
+		if scanner.Scan() {
+			photo.Description = scanner.Text()
+		} else {
+			return fmt.Errorf("failed to read description: %w", scanner.Err())
+		}
 
 		// Update or insert the photo into the photo list
 		UpdateOrInsertPhoto(&photoList, &photo)
