@@ -66,7 +66,7 @@ func listPhotosHandler(w http.ResponseWriter, r *http.Request) {
 func servePhotoHandler(w http.ResponseWriter, r *http.Request) {
 	photoName := strings.TrimPrefix(r.URL.Path, "/photos/")
 	if photoName == "" {
-		http.Error(w, "Photo not specified", http.StatusBadRequest)
+		http.ServeFile(w, r, "/photos/photos.json")
 		return
 	}
 
