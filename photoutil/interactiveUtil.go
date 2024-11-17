@@ -49,7 +49,7 @@ func UpdatePhotosInteractive(conf PhotoUtilInteractiveConfig) error {
 		// if exists {
 		// 	continue
 		// }
-		fmt.Printf("Enter description for photo %d (%s): ", i+1, photo.Title)
+		fmt.Printf("Enter description for photdo %d (%s): ", i+1, photo.Title)
 
 		// Read the entire line of input, including spaces
 		if scanner.Scan() {
