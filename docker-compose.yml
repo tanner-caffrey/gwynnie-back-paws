@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  backpaws:
+    build:
+      context: .
+    ports:
+      - "8080:8080" # Map container's port 8080 to host's port 8080
+    volumes:
+      - /path/to/host/photos:/app/photos # Mount host's photo directory to container
+    environment:
+      - PHOTO_DIR=/app/photos # Environment variable for the photo directory

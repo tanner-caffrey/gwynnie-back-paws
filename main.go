@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/tanner-caffrey/gwynnie-back-paws/server"
+	"github.com/tanner-caffrey/gwynnie-back-paws/backpaws"
 )
 
 func main() {

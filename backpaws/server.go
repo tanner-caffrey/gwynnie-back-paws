@@ -12,9 +12,11 @@ import (
 	"github.com/tanner-caffrey/gwynnie-back-paws/photoutil"
 )
 
+var photoDir = os.Getenv("PHOTO_DIR")
+
 const (
-	port      = 8080
-	photoDir  = "./photos"             // Directory to store photos
+	port = 8080
+	// Directory to store photos
 	staticDir = "./static"             // Directory for static files
 	fileTypes = ".jpg,.jpeg,.png,.gif" // Supported file extensions
 )
