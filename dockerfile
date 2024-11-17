@@ -28,7 +28,5 @@ COPY --from=builder /app/main .
 # Expose a port if your application listens on one (optional)
 EXPOSE 8080
 
-RUN ls -l ./main
-
 # Set the default command to run the application
 CMD ["./main"]

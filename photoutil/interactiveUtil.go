@@ -11,19 +11,14 @@ import (
 	"strings"
 )
 
-type PhotoUtilInteractiveConfig struct {
-	PhotoDir      string `json:"photoDir"`
-	PhotoListPath string `json:"photoListPath"`
-}
-
-func DefaultInteractiveConfig() PhotoUtilInteractiveConfig {
-	return PhotoUtilInteractiveConfig{
+func DefaultInteractiveConfig() PhotoUtilConfig {
+	return PhotoUtilConfig{
 		PhotoDir:      "./photos",
 		PhotoListPath: "./photos/photos.json",
 	}
 }
 
-func AddPhotosInteractive(conf PhotoUtilInteractiveConfig) error {
+func AddPhotosInteractive(conf PhotoUtilConfig) error {
 	// Retrieve the existing photo list
 	photoList, err := GetPhotoList(conf.PhotoListPath)
 	if err != nil {
@@ -90,7 +85,7 @@ func AddPhotosInteractive(conf PhotoUtilInteractiveConfig) error {
 	return nil
 }
 
-func UpdatePhotosInteractive(conf PhotoUtilInteractiveConfig) error {
+func UpdatePhotosInteractive(conf PhotoUtilConfig) error {
 	// Retrieve the existing photo list
 	photoList, err := GetPhotoList(conf.PhotoListPath)
 	if err != nil {

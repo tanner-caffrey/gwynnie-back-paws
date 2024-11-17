@@ -17,6 +17,11 @@ type Photo struct {
 	Description string `json:"description"`
 }
 
+type PhotoUtilConfig struct {
+	PhotoDir      string `json:"photoDir"`
+	PhotoListPath string `json:"photoListPath"`
+}
+
 func GetPhotoList(path string) (PhotoList, error) {
 	f, err := os.Open(path)
 	if err != nil {
