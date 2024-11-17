@@ -66,7 +66,7 @@ func listPhotosHandler(w http.ResponseWriter, r *http.Request) {
 func servePhotoHandler(w http.ResponseWriter, r *http.Request) {
 	photoName := strings.TrimPrefix(r.URL.Path, "/photos/")
 	if photoName == "" {
-		http.ServeFile(w, r, "/photos/photos.json")
+		http.ServeFile(w, r, "photo_list.json")
 		return
 	}
 
