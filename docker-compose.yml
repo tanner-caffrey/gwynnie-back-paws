@@ -10,4 +10,5 @@ services:
       - /home/tanner/gwynnie/persist/photos:/app/photos # Mount host's photo directory to container
     environment:
       - PHOTO_DIR=/app/photos # Environment variable for the photo directory
+      - PHOTO_LIST_PATH=/app/photos/photos.json
     restart: unless-stopped # Automatically restart the container on boot

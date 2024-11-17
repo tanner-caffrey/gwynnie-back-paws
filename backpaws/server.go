@@ -13,12 +13,13 @@ import (
 )
 
 var photoDir = os.Getenv("PHOTO_DIR")
+var photoListPath = os.Getenv("PHOTO_LIST_PATH")
 
 const (
 	port = 8080
 	// Directory to store photos
-	staticDir = "./static"             // Directory for static files
-	fileTypes = ".jpg,.jpeg,.png,.gif" // Supported file extensions
+	staticDir = "./static"                   // Directory for static files
+	fileTypes = ".jpg,.jpeg,.png,.gif,.json" // Supported file extensions
 )
 
 func StartServer() {
@@ -26,7 +27,10 @@ func StartServer() {
 	if _, err := os.Stat(photoDir); os.IsNotExist(err) {
 		log.Fatalf("Photo directory %s does not exist", photoDir)
 	}
-
+	if _, err := os.Stat(photoListPath); os.IsNotExist(err) {
+		log.Printf("Photo list %s does not exist. Creating...\n", photoListPath)
+		photoutil.WritePhotoList(photoListPath, photoutil.PhotoList{Path: photoDir, Photos: make([]photoutil.Photo, 0)})
+	}
 	// Set up handlers
 	http.HandleFunc("/", listPhotosHandler)
 	http.HandleFunc("/photos/", servePhotoHandler)
@@ -65,10 +69,6 @@ func listPhotosHandler(w http.ResponseWriter, r *http.Request) {
 // servePhotoHandler serves individual photo files
 func servePhotoHandler(w http.ResponseWriter, r *http.Request) {
 	photoName := strings.TrimPrefix(r.URL.Path, "/photos/")
-	if photoName == "" {
-		http.ServeFile(w, r, "photo_list.json")
-		return
-	}
 
 	photoPath := filepath.Join(photoDir, photoName)
 	if _, err := os.Stat(photoPath); os.IsNotExist(err) {
@@ -123,7 +123,6 @@ func uploadPhotoHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Update the photo list using photoutil
-		photoListPath := filepath.Join(photoDir, "photo_list.json") // Adjust path if needed
 		photoList, err := photoutil.GetPhotoList(photoListPath)
 		if err != nil && !os.IsNotExist(err) {
 			http.Error(w, "Failed to retrieve photo list", http.StatusInternalServerError)
@@ -151,7 +150,7 @@ func uploadPhotoHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Uploaded photo: %s, Title: %s, Description: %s\n", handler.Filename, title, description)
 
 		// Redirect back to the gallery
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/photos", http.StatusSeeOther)
 	}
 }
 
