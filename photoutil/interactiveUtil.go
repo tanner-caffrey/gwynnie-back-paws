@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,8 +19,75 @@ type PhotoUtilInteractiveConfig struct {
 func DefaultInteractiveConfig() PhotoUtilInteractiveConfig {
 	return PhotoUtilInteractiveConfig{
 		PhotoDir:      "./photos",
-		PhotoListPath: "./persist/photos.json",
+		PhotoListPath: "./photos/photos.json",
 	}
+}
+
+func AddPhotosInteractive(conf PhotoUtilInteractiveConfig) error {
+	// Retrieve the existing photo list
+	photoList, err := GetPhotoList(conf.PhotoListPath)
+	if err != nil {
+		return fmt.Errorf("failed to get photo list: %w", err)
+	}
+
+	// Create a scanner for reading user input
+	scanner := bufio.NewScanner(os.Stdin)
+	var photos []Photo
+
+	// Interactive loop to get photo URLs
+	fmt.Println("Enter photo URLs one by one. Type 'done' when finished:")
+	for {
+		fmt.Printf("Enter photo URL: ")
+		if !scanner.Scan() {
+			return fmt.Errorf("failed to read input: %w", scanner.Err())
+		}
+		url := scanner.Text()
+
+		// Exit the loop if the user types "done"
+		if url == "done" {
+			break
+		}
+
+		// Download the photo
+		filename, err := downloadPhoto(url, conf.PhotoDir)
+		if err != nil {
+			fmt.Printf("Error downloading photo from %s: %v\n", url, err)
+			continue
+		}
+
+		// Create a new Photo object and add it to the list
+		photo := Photo{Filename: filename}
+		photos = append(photos, photo)
+	}
+
+	// Ask for title and description for each photo
+	for i, photo := range photos {
+		fmt.Printf("Enter title for photo (%s): ", photo.Filename)
+		if scanner.Scan() {
+			photo.Title = scanner.Text()
+		} else {
+			return fmt.Errorf("failed to read title: %w", scanner.Err())
+		}
+
+		fmt.Printf("Enter description for photo %d (%s): ", i+1, photo.Title)
+		if scanner.Scan() {
+			photo.Description = scanner.Text()
+		} else {
+			return fmt.Errorf("failed to read description: %w", scanner.Err())
+		}
+
+		// Update or insert the photo into the photo list
+		UpdateOrInsertPhoto(&photoList, &photo)
+	}
+
+	// Write the updated photo list back to the file
+	err = WritePhotoList(conf.PhotoListPath, photoList)
+	if err != nil {
+		return fmt.Errorf("failed to write photo list: %w", err)
+	}
+
+	fmt.Println("Photo list updated successfully!")
+	return nil
 }
 
 func UpdatePhotosInteractive(conf PhotoUtilInteractiveConfig) error {
@@ -49,7 +118,7 @@ func UpdatePhotosInteractive(conf PhotoUtilInteractiveConfig) error {
 		// if exists {
 		// 	continue
 		// }
-		fmt.Printf("Enter description for photdo %d (%s): ", i+1, photo.Title)
+		fmt.Printf("Enter description for photo %d (%s): ", i+1, photo.Title)
 
 		// Read the entire line of input, including spaces
 		if scanner.Scan() {
@@ -106,4 +175,40 @@ func GetPhotosFromDir(path string) ([]Photo, error) {
 	}
 
 	return photos, nil
+}
+
+func downloadPhoto(url, dir string) (string, error) {
+	// Get the response from the URL
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("failed to download photo from %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+
+	// Check if the response is successful
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to download photo from %s: HTTP %d", url, resp.StatusCode)
+	}
+
+	// Get the filename from the URL
+	filename := filepath.Base(url)
+	if filename == "" {
+		return "", fmt.Errorf("invalid URL, cannot determine filename: %s", url)
+	}
+
+	// Create the file in the specified directory
+	filePath := filepath.Join(dir, filename)
+	file, err := os.Create(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create file %s: %w", filePath, err)
+	}
+	defer file.Close()
+
+	// Copy the photo content to the file
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to save photo to %s: %w", filePath, err)
+	}
+
+	return filename, nil
 }

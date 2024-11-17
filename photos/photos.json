@@ -1,0 +1,20 @@
+{
+	"path": "/photos",
+	"photos": [
+		{
+			"filename": "excuseme.jpg",
+			"title": "excuseme",
+			"description": "excuUSEme"
+		},
+		{
+			"filename": "gwynnie.jpg",
+			"title": "gwynnie",
+			"description": "wel"
+		},
+		{
+			"filename": "gwynnieOUT.jpg",
+			"title": "gwynnieOUT",
+			"description": "fasd"
+		}
+	]
+}
