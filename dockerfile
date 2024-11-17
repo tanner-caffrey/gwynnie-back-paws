@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go application
-RUN go build -o main .
+RUN go build -o main . && ls -l main
 
 # Stage 2: Create a smaller runtime image
 FROM alpine:latest
@@ -27,6 +27,8 @@ COPY --from=builder /app/main .
 
 # Expose a port if your application listens on one (optional)
 EXPOSE 8080
+
+RUN ls -l ./main
 
 # Set the default command to run the application
 CMD ["./main"]
