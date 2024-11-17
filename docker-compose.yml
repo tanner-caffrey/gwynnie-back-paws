@@ -5,7 +5,7 @@ services:
     build:
       context: .
     ports:
-      - "8080:8080" # Map container's port 8080 to host's port 8080
+      - "80:8080" # Map container's port 8080 to host's port 8080
     volumes:
       - /home/tanner/gwynnie/persist/photos:/app/photos # Mount host's photo directory to container
     environment:
